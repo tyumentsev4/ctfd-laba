@@ -1,0 +1,49 @@
+role: "Agent"
+customConfig:
+  data_dir: "/vector-data-dir"
+  sources:
+    kubernetes_logs:
+      type: "kubernetes_logs"
+  transforms:
+    remap_for_loki:
+      type: "remap"
+      inputs: ["kubernetes_logs"]
+      source: |
+        . = {
+          "message": .message,
+          "namespace": .kubernetes.pod_namespace,
+          "pod_name": .kubernetes.pod_name,
+          "service_name": .kubernetes.container_name,
+          "stream": .stream,
+          "pod_id": .kubernetes.pod_uid,
+          "host": .kubernetes.pod_node_name
+        }
+  sinks:
+    loki:
+      encoding:
+        codec: "json"
+      type: "loki"
+      inputs: ["remap_for_loki"]
+      endpoint: "http://loki.logging.svc.cluster.local:3100"
+      labels:
+        jon: "vector"
+        service_name: |-
+          {{ print "{{ .service_name }}" }}
+        cluster: ctfd
+        namespace: |-
+          {{ print "{{ .namespace }}" }}
+      remove_timestamp: true
+      structured_metadata:
+        pod: |-
+          {{ print "{{ .pod_name }}" }}
+        container_name: |-
+          {{ print "{{ .service_name }}" }}
+        host: |-
+          {{ print "{{ .host }}" }}
+        pod_id: |-
+          {{ print "{{ .pod_id }}" }}
+        stream: |-
+          {{ print "{{ stream }}" }}
+
+service:
+  enabled: false

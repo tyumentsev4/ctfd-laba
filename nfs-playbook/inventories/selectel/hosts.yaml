@@ -1,0 +1,9 @@
+---
+all:
+  children:
+    nfs_servers:
+      hosts:
+        nfs01:
+          ansible_host: 81.177.223.102
+          ansible_user: ansible
+          ansible_private_key_file: ../ctfd-key

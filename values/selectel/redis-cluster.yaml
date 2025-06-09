@@ -1,0 +1,26 @@
+global:
+  imageRegistry: ""
+  defaultStorageClass: "vm-nfs"
+  security:
+    allowInsecureImages: false
+existingSecret: "redis-cluster-secret"
+existingSecretPasswordKey: "redis-password"
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi
+redis:
+  resourcesPreset: "nano"
+  resources: {}
+cluster:
+  nodes: 6
+  replicas: 1
+metrics:
+  enabled: true
+  prometheusRule:
+    enabled: false
+  serviceMonitor:
+    enabled: true
+    labels:
+      prometheus: prometheus-operator

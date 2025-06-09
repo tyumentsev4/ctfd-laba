@@ -1,0 +1,77 @@
+replicaCount: 1
+
+image:
+  repository: tyumentsev4/ctfd
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+  hosts:
+    - host: ctfd.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - hosts:
+        - ctfd.example.com
+      secretName: ctfd-tls
+
+resources:
+  limits:
+    memory: 1024Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+persistence:
+  logs:
+    enabled: true
+    path: /var/log/CTFd
+    size: 1Gi
+    storageClassName: vm-nfs
+  uploads:
+    enabled: true
+    path: /var/uploads
+    size: 1Gi
+    storageClassName: vm-nfs
+
+extraEnvVars:
+  - name: DATABASE_PROTOCOL
+    value: mysql+pymysql
+  - name: DATABASE_USER
+    value: ctfd
+  - name: DATABASE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: mariadb-galera-secret
+        key: mariadb-password
+  - name: DATABASE_HOST
+    value: mariadb-galera
+  - name: DATABASE_NAME
+    value: ctfd
+  - name: DATABASE_PORT
+    value: "3306"
+  - name: REDIS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: redis-cluster-secret
+        key: redis-password
+  - name: REDIS_CLUSTER
+    value: redis-cluster-0.redis-cluster-headless:6379,redis-cluster-1.redis-cluster-headless:6379,redis-cluster-2.redis-cluster-headless:6379,redis-cluster-3.redis-cluster-headless:6379,redis-cluster-4.redis-cluster-headless:6379,redis-cluster-5.redis-cluster-headless:6379

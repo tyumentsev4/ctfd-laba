@@ -1,0 +1,10 @@
+- name: Setup nfs server
+  hosts: nfs_servers
+  become: true
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+  roles:
+    - ansible-role-nfs

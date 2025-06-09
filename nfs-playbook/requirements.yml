@@ -1,0 +1,4 @@
+---
+- name: ansible-role-nfs
+  src: git+https://github.com/geerlingguy/ansible-role-nfs.git
+  version: 2.1.0

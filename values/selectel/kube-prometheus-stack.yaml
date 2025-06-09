@@ -1,0 +1,32 @@
+grafana:
+  adminUser: admin
+  adminPassword: prom-operator
+
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+    ingressClassName: nginx
+    hosts:
+      - grafana.example.com
+    tls:
+    - secretName: grafana-general-tls
+      hosts:
+      - grafana.example.com
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      orgId: 1
+      access: proxy
+      url: http://loki.logging:3100
+      jsonData:
+        timeout: 60
+        maxLines: 1000
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector:
+      matchLabels:
+        prometheus: prometheus-operator

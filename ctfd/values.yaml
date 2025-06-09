@@ -1,0 +1,156 @@
+# Default values for ctfd.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# --Number of replicas to run
+replicaCount: 1
+
+# -- Image to use for the CTFd container
+image:
+  # -- Repository to pull the image from
+  repository: ghcr.io/ctfd/ctfd
+  # -- Pull policy for the image
+  pullPolicy: IfNotPresent
+  # -- Tag to use for the image
+  tag: "3.7.6"
+
+# -- Image pull secrets
+imagePullSecrets: []
+
+# -- Name override
+nameOverride: ""
+
+# -- Fullname override
+fullnameOverride: ""
+
+# -- Service account
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- Pod annotations
+podAnnotations: {}
+# -- Pod labels
+podLabels: {}
+
+# -- Pod security context
+podSecurityContext: {}
+  # fsGroup: 2000
+
+# -- Security context
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+
+# -- Service
+service:
+  # -- Service type
+  type: ClusterIP
+  # -- Service port
+  port: 8000
+
+# -- Ingress
+ingress:
+  # -- Ingress enabled
+  enabled: false
+  # -- Ingress class
+  className: ""
+  # -- Ingress annotations
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+# -- Resources
+resources:
+  limits:
+    cpu: 100m
+    memory: 1024Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# -- Liveness probe
+livenessProbe:
+  httpGet:
+    path: /healthcheck
+    port: http
+  initialDelaySeconds: 120
+
+# -- Readiness probe
+readinessProbe:
+  httpGet:
+    path: /healthcheck
+    port: http
+  initialDelaySeconds: 120
+
+# -- Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# -- Additional volumes
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# -- Additional volumeMounts
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations
+tolerations: []
+
+# -- Affinity
+affinity: {}
+
+# -- Persistence
+persistence:
+  logs:
+    enabled: false
+    path: /var/log/CTFd
+    size: 1Gi
+    storageClassName: ""
+  uploads:
+    enabled: false
+    path: /var/uploads
+    size: 1Gi
+    storageClassName: ""
+
+# -- Extra environment variables secret
+extraEnvVarsSecret: {}
+
+# -- Extra environment variables configmap
+extraEnvVarsCM: {}
+
+# -- Extra environment variables
+extraEnvVars: {}
